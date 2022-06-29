@@ -1,0 +1,69 @@
+version: "3"
+
+x-log: &default
+  restart: always
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "10"
+
+services:
+  db:
+    image: postgres:12-alpine
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          memory: 50M 
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - prod.env
+    <<: *default
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  wiki:
+    image: ghcr.io/requarks/wiki:2
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          memory: 50M 
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - prod.env
+    <<: *default
+    ports:
+      - "8000:3000"
+    depends_on:
+      - elasticsearch
+      - db
+
+  elasticsearch:
+    image: bitnami/elasticsearch:7.10.1
+    hostname: "1-elasticsearch-master"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          memory: 50M 
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - elasticsearch-data:/bitnami/elasticsearch/data
+    env_file:
+      - prod.env
+    <<: *default
+
+volumes:
+  db-data:
+  elasticsearch-data:
