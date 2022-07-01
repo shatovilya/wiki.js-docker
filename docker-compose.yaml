@@ -47,7 +47,7 @@ services:
       - db
 
   elasticsearch:
-    image: bitnami/elasticsearch:7.10.1
+    image: bitnami/elasticsearch:7.17.5
     hostname: "1-elasticsearch-master"
     deploy:
       resources:
@@ -63,6 +63,46 @@ services:
     env_file:
       - prod.env
     <<: *default
+
+  elasticsearch-exporter:
+    image: bitnami/elasticsearch-exporter:latest
+    command:
+      '--es.uri=http://elasticsearch:9200'
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          memory: 50M 
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - prod.env
+    <<: *default
+    ports:
+      - "9114:9114"
+    depends_on:
+      - elasticsearch
+
+  postgres-exporter:
+    image: bitnami/postgres-exporter:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          memory: 50M 
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - prod.env
+    <<: *default
+    ports:
+      - "9187:9187"
+    depends_on:
+      - elasticsearch
 
 volumes:
   db-data:
