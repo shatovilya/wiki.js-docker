@@ -24,7 +24,7 @@ To install, run:
 2. Create an prod.env file and fill with variables:
 
 ```bash
-cp ./.env_temp ./prod.env
+cp ./.env_template ./.env
 
 ```
 
