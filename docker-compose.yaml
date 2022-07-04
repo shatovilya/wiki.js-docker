@@ -25,6 +25,12 @@ services:
     <<: *default
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   wiki:
     image: ghcr.io/requarks/wiki:2
@@ -43,8 +49,21 @@ services:
     ports:
       - "8000:3000"
     depends_on:
-      - elasticsearch
-      - db
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - wiki_temp:/wiki/data
+    healthcheck:
+      test: (curl http://localhost:3000/healthz | grep ok) || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+
+
 
   elasticsearch:
     image: bitnami/elasticsearch:7.17.5
@@ -63,6 +82,12 @@ services:
     env_file:
       - prod.env
     <<: *default
+    healthcheck:
+      test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 1m
 
   elasticsearch-exporter:
     image: bitnami/elasticsearch-exporter:latest
@@ -107,3 +132,4 @@ services:
 volumes:
   db-data:
   elasticsearch-data:
+  wiki_temp:
