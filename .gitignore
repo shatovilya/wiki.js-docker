@@ -1,0 +1,5 @@
+prod.env
+test.env
+.env
+backups
+backups/*.*
