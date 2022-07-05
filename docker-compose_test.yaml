@@ -20,9 +20,9 @@ x-env-wiki: &env-wiki
   DB_TYPE: ${DB_TYPE:-postgres}
 
 x-env-db: &env-db
-  POSTGRES_DB: ${DB_NAME:-wiki}
-  POSTGRES_USER: ${DB_USER:-wikijs}
-  POSTGRES_PASSWORD: ${DB_PASS:-wikijsrocks}
+  POSTGRES_DB:        ${DB_NAME:-wiki}
+  POSTGRES_USER:      ${DB_USER:-wikijs}
+  POSTGRES_PASSWORD:  ${DB_PASS:-wikijsrocks}
 
 x-env-elasticsearch: &env-elasticsearch
   MAX_LOCKED_MEMORY: ${MAX_LOCKED_MEMORY:-unlimited}
@@ -33,7 +33,20 @@ x-env-elasticsearch: &env-elasticsearch
   ELASTICSEARCH_MINIMUM_MASTER_NODES: ${ELASTICSEARCH_MINIMUM_MASTER_NODES:-1}
 
 x-env-postgres-exporter: &env-postgres-exporter
-  DATA_SOURCE_NAME: ${DATA_SOURCE_NAME:-postgresql://wikijs:wikijsrocks@db:5432/postgres?sslmode=disable"}
+  DATA_SOURCE_NAME: ${DATA_SOURCE_NAME}
+
+x-env-db-backup: &env-db-backup
+  DB_TYPE:          ${DB_TYPE:-postgres}
+  DB_HOST:          ${DB_HOST:-db}
+  DB_NAME:          ${DB_NAME:-wiki}
+  DB_USER:          ${DB_USER:-wikijs}
+  DB_PASS:          ${DB_PASS:-wikijsrocks}
+  DB_DUMP_FREQ:     ${DB_DUMP_FREQ:-1440}
+  DB_DUMP_BEGIN:    ${DB_DUMP_BEGIN:-0000}
+  DB_CLEANUP_TIME:  ${DB_DUMP_BEGIN:-8640}
+  CHECKSUM:         ${CHECKSUM:-SHA1}
+  COMPRESSION:      ${COMPRESSION:-ZSTD}
+  SPLIT_DB:         ${SPLIT_DB:-FALSE}
 
 services:
   db:
@@ -159,24 +172,17 @@ services:
         condition: service_healthy
 
   db-backup:
-    container_name: example-db-backup
     image: tiredofit/db-backup
     volumes:
       - ./backups:/backup
       #- ./post-script.sh:/assets/custom-scripts/post-script.sh
     environment:
-      - DB_TYPE=pgsql
-      - DB_HOST=db
-      - DB_NAME=example
-      - DB_USER=example
-      - DB_PASS="examplepassword"
-      - DB_DUMP_FREQ=1440
-      - DB_DUMP_BEGIN=0000
-      - DB_CLEANUP_TIME=8640
-      - CHECKSUM=SHA1
-      - COMPRESSION=ZSTD
-      - SPLIT_DB=FALSE
+      <<: *env-db-backup
+      <<: *env-general
     <<: *default
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db-data:
