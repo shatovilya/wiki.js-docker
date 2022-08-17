@@ -30,18 +30,18 @@ x-env-elasticsearch: &env-elasticsearch
 x-env-postgres-exporter: &env-postgres-exporter
   DATA_SOURCE_NAME: ${DATA_SOURCE_NAME:-postgresql://wikijs:wikijsrocks@db:5432/postgres?sslmode=disable}
 
-x-env-db-backup: &env-db-backup
-  DB_TYPE:          ${DB_TYPE:-postgres}
-  DB_HOST:          ${DB_HOST:-db}
-  DB_NAME:          ${DB_NAME:-wiki}
-  DB_USER:          ${DB_USER:-wikijs}
-  DB_PASS:          ${DB_PASS:-wikijsrocks}
-  DB_DUMP_FREQ:     ${DB_DUMP_FREQ:-1440}
-  DB_DUMP_BEGIN:    ${DB_DUMP_BEGIN:-1900}
-  DB_CLEANUP_TIME:  ${DB_CLEANUP_TIME:-8640}
-  CHECKSUM:         ${CHECKSUM:-SHA1}
-  COMPRESSION:      ${COMPRESSION:-ZSTD}
-  SPLIT_DB:         ${SPLIT_DB:-FALSE}
+# x-env-db-backup: &env-db-backup
+#   DB_TYPE:          ${DB_TYPE:-postgres}
+#   DB_HOST:          ${DB_HOST:-db}
+#   DB_NAME:          ${DB_NAME:-wiki}
+#   DB_USER:          ${DB_USER:-wikijs}
+#   DB_PASS:          ${DB_PASS:-wikijsrocks}
+#   DB_DUMP_FREQ:     ${DB_DUMP_FREQ:-1440}
+#   DB_DUMP_BEGIN:    ${DB_DUMP_BEGIN:-1900}
+#   DB_CLEANUP_TIME:  ${DB_CLEANUP_TIME:-8640}
+#   CHECKSUM:         ${CHECKSUM:-SHA1}
+#   COMPRESSION:      ${COMPRESSION:-ZSTD}
+#   SPLIT_DB:         ${SPLIT_DB:-FALSE}
 
 services:
   wiki:
@@ -142,26 +142,26 @@ services:
       db:
         condition: service_healthy
 
-  db-backup:
-    image: tiredofit/db-backup
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          memory: 50M 
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - ./backups:/backup
-    environment:
-      <<: *env-db-backup
-      <<: *env-general
-    <<: *default
-    depends_on:
-      db:
-        condition: service_healthy
+  # db-backup:
+  #   image: tiredofit/db-backup
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.5'
+  #         memory: 256M
+  #       reservations:
+  #         memory: 50M 
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   volumes:
+  #     - ./backups:/backup
+  #   environment:
+  #     <<: *env-db-backup
+  #     <<: *env-general
+  #   <<: *default
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
 volumes:
   db-data:
