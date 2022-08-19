@@ -27,6 +27,7 @@ x-env-elasticsearch: &env-elasticsearch
   ELASTICSEARCH_HEAP_SIZE: ${ELASTICSEARCH_HEAP_SIZE:-1g}
   ELASTICSEARCH_MINIMUM_MASTER_NODES: ${ELASTICSEARCH_MINIMUM_MASTER_NODES:-1}
 
+<<<<<<< HEAD:docker-compose_prod.yaml
 x-env-postgres-exporter: &env-postgres-exporter
   DATA_SOURCE_NAME: ${DATA_SOURCE_NAME:-postgresql://wikijs:wikijsrocks@db:5432/postgres?sslmode=disable}
 
@@ -42,32 +43,41 @@ x-env-postgres-exporter: &env-postgres-exporter
 #   CHECKSUM:         ${CHECKSUM:-SHA1}
 #   COMPRESSION:      ${COMPRESSION:-ZSTD}
 #   SPLIT_DB:         ${SPLIT_DB:-FALSE}
+=======
+x-env-db-backup: &env-db-backup
+  DB_TYPE:          ${DB_TYPE:-postgres}
+  DB_HOST:          ${DB_HOST:-db}
+  DB_NAME:          ${DB_NAME:-wiki}
+  DB_USER:          ${DB_USER:-wikijs}
+  DB_PASS:          ${DB_PASS:-wikijsrocks}
+  DB_DUMP_FREQ:     ${DB_DUMP_FREQ:-1440}
+  DB_DUMP_BEGIN:    ${DB_DUMP_BEGIN:-1900}
+  DB_CLEANUP_TIME:  ${DB_CLEANUP_TIME:-8640}
+  CHECKSUM:         ${CHECKSUM:-SHA1}
+  COMPRESSION:      ${COMPRESSION:-ZSTD}
+  SPLIT_DB:         ${SPLIT_DB:-FALSE}
+>>>>>>> 2b84de65f4b0932a5a07bfb7ffce2c01e9ab235b:docker-compose_cloud_DB.yaml
 
 services:
   wiki:
-    image: ghcr.io/requarks/wiki:2
+    image: ghcr.io/requarks/wiki:${wiki_js_ver:-2}
     deploy:
       resources:
         limits:
           cpus: '1'
-          memory: 1024M
+          memory: 0.5Gb
         reservations:
-          memory: 50M 
+          memory: 50M
     security_opt:
       - no-new-privileges:true
     environment:
       <<: *env-wiki
-      <<: *env-general
     <<: *default
     ports:
       - ${WIKI_PORT:-8000}:3000
-    depends_on:
-      db:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
     volumes:
       - wiki_temp:/wiki/data
+      - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: (curl http://localhost:3000/healthz | grep ok) || exit 1
       interval: 10s
@@ -75,29 +85,29 @@ services:
       retries: 5
 
   elasticsearch:
-    image: bitnami/elasticsearch:7.17.5
+    image: bitnami/elasticsearch:${elasticsearch_ver:-7.17.5}
     hostname: "1-elasticsearch-master"
     deploy:
       resources:
         limits:
           cpus: '2'
-          memory: 2048M
+          memory: 2048Mb
         reservations:
           memory: 50M 
     security_opt:
       - no-new-privileges:true
-    volumes:
-      - elasticsearch-data:/bitnami/elasticsearch/data
     environment:
       <<: *env-elasticsearch
       <<: *env-general
     <<: *default
+    volumes:
+      - elasticsearch-data:/bitnami/elasticsearch/data
     healthcheck:
       test: curl -s http://elasticsearch:9200 >/dev/null || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 1m
+      start_period: 2m
 
   elasticsearch-exporter:
     image: bitnami/elasticsearch-exporter:latest
@@ -106,10 +116,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: 2048M
+          cpus: '0.1'
+          memory: 0.1Gb
         reservations:
-          memory: 50M 
+          memory: 10M 
     security_opt:
       - no-new-privileges:true
     environment:
@@ -121,6 +131,7 @@ services:
       elasticsearch:
         condition: service_healthy
 
+<<<<<<< HEAD:docker-compose_prod.yaml
   postgres-exporter:
     image: bitnami/postgres-exporter:latest
     deploy:
@@ -163,7 +174,8 @@ services:
   #     db:
   #       condition: service_healthy
 
+=======
+>>>>>>> 2b84de65f4b0932a5a07bfb7ffce2c01e9ab235b:docker-compose_cloud_DB.yaml
 volumes:
-  db-data:
   elasticsearch-data:
   wiki_temp:

@@ -20,6 +20,11 @@ Uses the following micro service applications:
 
 Before deploying the project, install Docker, Docker Compose latest versions.
 
+Change vm.max_map_count
+
+```bash
+sysctl -w vm.max_map_count=262144
+```
 
 
 ## Installation
@@ -50,7 +55,7 @@ cp ./.env_template ./.env
 Production
 
 ```bash
-docker-compose -f docker-compose_prod.yaml up -d
+docker-compose -f docker-compose_cloud_DB up -d
 
 ```
 
