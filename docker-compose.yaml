@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+
+  nginx:
+    build: ./nginx
+    ports:
+    - "443:443"
+    depends_on:
+      - "wiki"
+
+  wiki:
+    image: ghcr.io/requarks/wiki:${wiki_js_ver:-2}
+    restart: always
+    environment:
+      TZ: Europe/Moscow
+      DB_TYPE: postgres
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      WIKI_PORT: ${WIKI_PORT}
+    ports:
+      - ${WIKI_PORT}:3000
+    volumes:
+      - wiki_temp:/wiki/data
+      - /etc/localtime:/etc/localtime:ro
+
+  elasticsearch:
+    image: bitnami/elasticsearch:${elasticsearch_ver:-7.17.5}
+    environment:
+      TZ: Europe/Moscow
+      MAX_LOCKED_MEMORY: ${MAX_LOCKED_MEMORY}
+      ELASTICSEARCH_NODE_NAME: ${MAX_LOCKED_MEMORY}
+      ELASTICSEARCH_CLUSTER_HOSTS: ${MAX_LOCKED_MEMORY}
+      ELASTICSEARCH_CLUSTER_NAME: ${MAX_LOCKED_MEMORY}
+      ELASTICSEARCH_HEAP_SIZE: ${MAX_LOCKED_MEMORY}
+      ELASTICSEARCH_MINIMUM_MASTER_NODES: ${MAX_LOCKED_MEMORY}
+    volumes:
+      - elasticsearch-data:/bitnami/elasticsearch/data
+
+volumes:
+  elasticsearch-data:
+  wiki_temp:
