@@ -2,12 +2,12 @@ version: "3"
 
 services:
 
-  nginx:
-    build: ./nginx
-    ports:
-    - "443:443"
-    depends_on:
-      - "wiki"
+  # nginx:
+  #   build: ./nginx
+  #   ports:
+  #   - "443:443"
+  #   depends_on:
+  #     - "wiki"
 
   wiki:
     image: ghcr.io/requarks/wiki:${wiki_js_ver:-2}
@@ -22,7 +22,7 @@ services:
       DB_NAME: ${DB_NAME}
       WIKI_PORT: ${WIKI_PORT}
     ports:
-      - ${WIKI_PORT}:3000
+      - "${WIKI_PORT}:3000"
     volumes:
       - wiki_temp:/wiki/data
       - /etc/localtime:/etc/localtime:ro
