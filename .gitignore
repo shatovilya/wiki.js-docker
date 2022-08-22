@@ -3,3 +3,4 @@ test.env
 .env
 backups
 backups/*.*
+*.backup

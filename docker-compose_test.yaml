@@ -48,7 +48,7 @@ x-env-db-backup: &env-db-backup
 
 services:
   db:
-    image: postgres:12-alpine
+    image: postgres:${postgres_ver:-13}
     security_opt:
       - no-new-privileges:true
     environment:
@@ -64,7 +64,7 @@ services:
       retries: 3
 
   wiki:
-    image: ghcr.io/requarks/wiki:2
+    image: ghcr.io/requarks/wiki:${wiki_js_ver:-2}
     security_opt:
       - no-new-privileges:true
     environment:
@@ -88,7 +88,7 @@ services:
         condition: service_healthy
 
   elasticsearch:
-    image: bitnami/elasticsearch:7.17.5
+    image: bitnami/elasticsearch:${elasticsearch_ver:-7.17.5}
     hostname: "1-elasticsearch-master"
     security_opt:
       - no-new-privileges:true
@@ -110,7 +110,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - ./backups:/backup
+      - backups:/backup
     environment:
       <<: *env-db-backup
       <<: *env-general
@@ -123,3 +123,4 @@ volumes:
   db-data:
   elasticsearch-data:
   wiki_temp:
+  backups:
