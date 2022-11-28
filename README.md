@@ -10,7 +10,6 @@ Uses the following micro service applications:
 -   App wiki.js
 -   PostgreSQL
 -   Elasticsearch
--   Prometeus Exporters
 -   App Backup
 
 
@@ -37,7 +36,6 @@ Production - PostgreSQL DBaaS.
 
 Test - PostgreSQL local.
 
-
 For installation:
 To install, run:
 
@@ -45,8 +43,18 @@ To install, run:
 
 2. Create an .env file and fill with variables:
 
+
+Production
+
 ```bash
-cp ./.env_template ./.env
+cp ./.env.template.prod ./.env
+
+```
+
+Test
+
+```bash
+cp ./.env.template.test ./.env
 
 ```
 
@@ -55,14 +63,14 @@ cp ./.env_template ./.env
 Production
 
 ```bash
-docker-compose -f docker-compose_cloud_DB up -d
+docker-compose up -d
 
 ```
 
 Test
 
 ```bash
-docker-compose -f docker-compose_test.yaml up -d
+docker-compose up -d
 
 ```
 
