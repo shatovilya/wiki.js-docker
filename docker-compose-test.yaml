@@ -1,16 +1,5 @@
 version: "3"
 
-x-log: &default
-  restart: always
-  logging:
-    driver: "json-file"
-    options:
-      max-size: "10m"
-      max-file: "10"
-
-x-env-general: &env-general
-  TZ: ${TZ:-Europe/Moscow}
-
 x-env-wiki: &env-wiki
   DB_HOST: ${DB_HOST:-db}
   DB_PORT: ${DB_PORT:-5432}
@@ -48,7 +37,7 @@ x-env-db-backup: &env-db-backup
 
 services:
   db:
-    image: postgres:${postgres_ver:-13}
+    image: postgres:12-alpine
     security_opt:
       - no-new-privileges:true
     environment:
@@ -64,23 +53,6 @@ services:
       retries: 3
 
   wiki:
-    image: ghcr.io/requarks/wiki:${wiki_js_ver:-2}
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      <<: *env-wiki
-      <<: *env-general
-    <<: *default
-    ports:
-      - ${WIKI_PORT:-8000}:3000
-    volumes:
-      - wiki_temp:/wiki/data
-      - /etc/localtime:/etc/localtime:ro
-    healthcheck:
-      test: (curl http://localhost:3000/healthz | grep ok) || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 3
     depends_on:
       db:
         condition: service_healthy
@@ -88,7 +60,7 @@ services:
         condition: service_healthy
 
   elasticsearch:
-    image: bitnami/elasticsearch:${elasticsearch_ver:-7.17.5}
+    image: bitnami/elasticsearch:7.17.5
     hostname: "1-elasticsearch-master"
     security_opt:
       - no-new-privileges:true
@@ -110,7 +82,7 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - backups:/backup
+      - ./backups:/backup
     environment:
       <<: *env-db-backup
       <<: *env-general
@@ -123,4 +95,3 @@ volumes:
   db-data:
   elasticsearch-data:
   wiki_temp:
-  backups:

@@ -22,24 +22,8 @@ x-env-wiki: &env-wiki
 
 services:
   wiki:
-    image: ghcr.io/requarks/wiki:2
-    security_opt:
-      - no-new-privileges:true
-    environment:
-      <<: *env-wiki
-      <<: *env-general
-    <<: *default
     ports:
       - ${WIKI_PORT:-8000}:3000
-    volumes:
-      - wiki_temp:/wiki/data
-      - /etc/localtime:/etc/localtime:ro
-      - ./conf:/wiki/config.yml
-    healthcheck:
-      test: (curl http://localhost:3000/healthz | grep ok) || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
 volumes:
   wiki_temp:
