@@ -35,6 +35,9 @@ x-env-db-backup: &env-db-backup
   COMPRESSION:      ${COMPRESSION:-ZSTD}
   SPLIT_DB:         ${SPLIT_DB:-FALSE}
 
+x-env-general: &env-general
+  TZ: ${TZ:-Europe/Moscow}
+
 services:
   db:
     image: postgres:12-alpine
